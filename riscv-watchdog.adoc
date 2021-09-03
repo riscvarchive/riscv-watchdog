@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: CC-BY-4.0
+
+= RISC-V Watchdog Specification
+:author: RISC-V Platform Specification Task Group
+:email: tech-unixplatformspec@lists.riscv.org
+:revnumber: 1.0-draft-0.1
+:sectnums:
+:xrefstyle: short
+:toc: macro
+
+// Table of contents
+toc::[]
+
+[preface]
+== Copyright and license information
+
+This RISC-V watchdog specification has been contributed directly or
+indirectly by:
+
+[%hardbreaks]
+* Greg Favor <gfavor@ventanamicro.com>
+* Kumar Sankaran <ksankaran@ventanamicro.com>
+* Anup Patel <anup.patel@wdc.com>
+
+*NOTE:* Please add yourself to the above list if you have contributed to
+the RISC-V watchdog specification.
+
+It is licensed under the Creative Commons Attribution 4.0 International
+License (CC-BY 4.0). The full license text is available at
+https://creativecommons.org/licenses/by/4.0/.
+
+[preface]
+== Change Log
+
+=== Version 1.0
+
+* Initial release with a simple two-stage watchdog device
+
+== Watchdog Timer
+
+The watchdog timer device provide a simple memory mapped two-stage watchdog
+timer controlled through one 32-bit memory-mapped registers. Essentially
+just a control/status register (WDCSR) and no separate counter and/or compare
+registers.
+
+The machine-level time counter (i.e. `MTIME`) defined by the RISC-V privileged
+specification is directly leveraged to not only provide a watchdog timebase,
+but to also indicate when a configured timeout period elapses.
+
+The basic function is to wait a software-configured period of time - with
+the expectation that system software will re-initialize the watchdog state
+within this period of time. But if this time period elapses without software
+re-init occurring, then a first-stage timeout register bit (S1WTO) is set
+within WDCSR that asserts an interrupt request output signal to notify the
+system of a stage 1 watchdog timeout.
+
+If a second such period of time elapses without software re-init of the
+watchdog, then a second-stage timeout register bit (S2WTO) is set within
+WDCSR that generates a separate interrupt request output signal to notify
+the system of a stage 2 watchdog timeout.
+
+Normally system software will periodically re-init the state of the watchdog
+by writing WDCSR more frequently than the configured timeout period.
+
+=== Register Map
+
+[#table_watchdog_register_list]
+.Watchdog Register Map
+[cols="2,1,1,2,4", width=95%, align="center", options="header"]
+|===
+| Offset      | Width | Attr | Name         | Description
+| 0x0000_0000 | 4B    | RW   | WDCSR        | Control and status register
+|===
+
+=== WDCSR Register (Offset: 0x00000000)
+
+The <<table_wdcsr_register_fields>> shows various fields of the WDCSR
+register.
+
+[#table_wdcsr_register_fields]
+.Watchdog Control and Status Register
+[cols="1,1,3", width=80%, align="center", options="header"]
+|===
+| Field      | Bits | Description
+| WDEN       | 0:0  | Enable the watchdog timer
+| ARMWD      | 1:1  | Watchdog armed
+| S1WTO      | 2:2  | Stage1 watchdog timeout
+| S2WTO      | 3:3  | Stage2 watchdog timeout
+| MTIMESEL   | 8:4  | Bit position 
+| *RESERVED* | 31:9 | Reserved for future use
+|===
+
+A system's MTIME real-time counter register provides the timebase for the
+watchdog timeout period.  Time periods that are powers of two of the unit
+resolution of MTIME may be selected.  In particular, any one bit from
+MTIME[39:8] can be selected and each time this bit transitions from 0 to 1
+represents the completion of a timeout time period.  Selection of bit 8
+results in a timeout period of 512 times the unit resolution of MTIME. For
+example, with an MTIME unit resolution of 10ns (corresponding to a 100 MHz
+unit increment rate), selection of bit 8 results in a 5.12 microsecond
+timeout period.  Similarly, selection of bit 39 results in a timeout period
+of 2^40 times 10ns, or approximately 1000 seconds.  All power-of-two time
+periods in between these two can also be selected.
+
+The WDEN, when set, enables the watchdog timer device. When clear, the
+Watchdog is disabled and the S1WTO and S2WTO output signals are forced
+to be zero (deasserted).
+
+Software should initialize (and periodically re-initialize) WDCSR by
+writing WDEN=1, ARMWD=S1WTO=S2WTO=0, and MTIMSEL to select the desired
+MTIME bit.  Whenever the selected bit transitions from 0 to 1, the
+following state transitions occur if WDEN=1:
+
+. If S1WTO=1, then set S2WTO
+. If ARMWD=1, then set S1WTO
+. Set ARMWD
+
+Setting of ARMWD after the elapse of a partial time period since WDCSR was
+initialized, starts the first watchdog timeout period.  Then at the end of
+that full time period S1WTO will be set if WDCSR hasn't been re-initialized
+by software to ARMWD=S1WTO=S2WTO=0 before that point.  Then at the end of
+the next full time period S2WTO will be set if, again, WDCSR has not been
+re-initialized by software.
+
+When S1WTO is set and while it remains set, a stage 1 watchdog timeout
+output signal from the watchdog device is asserted.  Similarly, when S2WTO
+is set and while it remains set, a stage 2 watchdog timeout output signal
+from the watchdog device is asserted.
+
+On system reset, the WDEN bit should be set to zero.

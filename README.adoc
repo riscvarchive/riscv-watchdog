@@ -1,0 +1,23 @@
+= RISC-V Watchdog specification
+
+The watchdog specification defines a memory mapped device which can be used
+to detect and recover from a RISC-V system malfunctions or hang.
+
+Discussion of watchdog device occurs on the
+https://lists.riscv.org/g/tech-unixplatformspec[RISC-V Unix Platform Mailing
+list]. It is publicly readable but posting requires being a member of the
+RISC-V International. Any changes to the watchdog specification needs to be
+discussed and approved there before being merged.
+
+= Licensing
+
+The files in this repository are licensed under the Creative Commons
+Attribution 4.0 International License (CC-BY 4.0).  The full license
+text is available at https://creativecommons.org/licenses/by/4.0/.
+
+= Building Documents
+
+The final specification in form of PDF and HTML can be generated using
+`make` command. The `makefile` internally uses asciidoctor so the packages
+required by the `makefile` need to be installed on the build system using
+`make install-debs` or `make install-rpms`.
