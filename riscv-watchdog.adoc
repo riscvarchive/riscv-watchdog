@@ -48,7 +48,7 @@ re-init occurring, then a first-stage timeout register bit (*S1WTO*) is set
 within WDCSR that asserts an interrupt request output signal to notify the
 system of a stage 1 watchdog timeout. If a second period of time elapses
 without software re-init of the watchdog, then a second-stage timeout
-register bit (*S2WTO*) is set within `WDCSR` that generates a separate
+register bit (*S2WTO*) is set within WDCSR that generates a separate
 interrupt request output signal to notify the system of a stage 2 watchdog
 timeout.
 
@@ -60,7 +60,7 @@ time period.
 
 A system's MTIME real-time counter provides the timebase or "clock tick" for
 the watchdog timeout period. The timeout period itself - in units of watchdog
-clock tick - is specified by a *10-bit WTOCNT* field of WDCSR. When WDCSR is
+clock tick - is specified by a 10-bit WTOCNT field of WDCSR. When WDCSR is
 written, the WTOCNT value initializes a 10-bit down counter (aka timeout
 counter) that decrements with each watchdog tick.
 
@@ -122,13 +122,11 @@ WDEN=1, S1WTO=S2WTO=0, and WTOCNT with the desired timeout period. The 10-bit
 WTOCNT value initializes a 10-bit timeout counter. The following state
 transitions occurs upon every watchdog tick when WDEN=1:
 
-. If timeout counter is non-zero then
-.. Decrement timeout counter
-. else
-.. If S1WTO=1 then
-... Set S2WTO
-.. else
-... Set S1WTO and re-initialize the timeout counter with WTOCNT
+. If timeout counter is non-zero then +
+  decrement timeout counter
+. If timeout counter is now zero then +
+  if S1WTO=1 then set S2WTO else set S1WTO and re-initialize the timeout
+  counter with WTOCNT
 
 [sidebar]
 --
