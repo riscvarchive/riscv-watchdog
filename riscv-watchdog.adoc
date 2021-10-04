@@ -75,17 +75,19 @@ watchdog tick resolution.
 [sidebar]
 --
 [underline]*_Example1:_* +
-A 10 ns unit of resolution for MTIME values (corresponding to a 100 MHz rate
-of increments), selection of MTIME bit 24 results in watchdog tick resolution
-of 0.3355 seconds and a maximum timeout period (WTOCNT=0x3FF) of 343+ seconds.
+With a 10 ns unit of resolution for MTIME values (corresponding to a 100 MHz
+rate of increments), selection of MTIME bit 24 results in a watchdog tick
+resolution of 0.3355 seconds and a maximum timeout period (WTOCNT=0x3FF)
+of 343+ seconds.
 --
 
 [sidebar]
 --
 [underline]*_Example2:_* +
-A 100 ns unit of resolution for MTIME values (corresponding to a 10 MHz rate
-of increments), selection of MTIME bit 20 results in watchog tick resolution
-of 0.2097 seconds and a maximum timeout period (WTOCNT=0x3FF) of 214+ seconds.
+With a 100 ns unit of resolution for MTIME values (corresponding to a 10 MHz
+rate of increments), selection of MTIME bit 20 results in a watchog tick
+resolution of 0.2097 seconds and a maximum timeout period (WTOCNT=0x3FF)
+of 214+ seconds.
 --
 
 The choice of MTIME resolution and MTIME bit position for watchdog tick is
@@ -123,9 +125,10 @@ WTOCNT value initializes a 10-bit timeout counter. The following state
 transitions occurs upon every watchdog tick when WDEN=1:
 
 . If timeout counter is non-zero then +
-  decrement timeout counter
+  {nbsp}{nbsp}{nbsp}{nbsp}decrement timeout counter
 . If timeout counter is now zero then +
-  if S1WTO=1 then set S2WTO else set S1WTO and re-initialize the timeout
+  {nbsp}{nbsp}{nbsp}{nbsp}if S1WTO=1 then set S2WTO +
+  {nbsp}{nbsp}{nbsp}{nbsp}else set S1WTO and re-initialize the timeout
   counter with WTOCNT
 
 [sidebar]
