@@ -3,7 +3,7 @@
 = RISC-V Watchdog Timer Specification
 :author: RISC-V Platform Specification Task Group
 :email: tech-unixplatformspec@lists.riscv.org
-:revnumber: 1.0-draft-0.4
+:revnumber: 1.0-draft-0.5
 :sectnums:
 :xrefstyle: short
 :toc: macro
